@@ -39,7 +39,7 @@ import android.util.Log
  * **Don't forget to close the cursor**
  */
 @SuppressLint("Recycle")
-fun ContentResolver.queryParser(query: String, selectionArgs: Array<String>? = null): Cursor {
+fun ContentResolver.querySql(query: String, selectionArgs: Array<String>? = null): Cursor {
     try {
         // select
         val projection = makeProjection(query.extract("SELECT", "FROM")!!)

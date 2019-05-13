@@ -8,8 +8,8 @@ android {
         minSdkVersion 16
         targetSdkVersion 28
         // sdk_version, major, minor, fixes
-        versionCode 28_1_0_01
-        versionName "1.0-beta01"
+        versionCode 28_1_0_02
+        versionName "1.0-beta02"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

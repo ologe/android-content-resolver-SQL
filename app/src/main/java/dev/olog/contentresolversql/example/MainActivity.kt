@@ -6,7 +6,7 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AlbumColumns.ARTIST
 import android.provider.MediaStore.Audio.AudioColumns.*
 import androidx.appcompat.app.AppCompatActivity
-import dev.olog.contentresolversql.queryParser
+import dev.olog.contentresolversql.querySql
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
             FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
         """.trimIndent()
 
-        var cursor = contentResolver.queryParser(query)
+        var cursor = contentResolver.querySql(query)
         cursor.close()
 
         query = """
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         """.trimIndent()
 
         contentResolver.query(Uri.parse(""), null, null, null, null)
-        cursor = contentResolver.queryParser(query)
+        cursor = contentResolver.querySql(query)
         val result = mutableListOf<Artist>()
         while (cursor.moveToNext()){
             val item = Artist(

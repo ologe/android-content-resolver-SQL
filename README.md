@@ -16,7 +16,7 @@ Content Resolver SQL
 
 Allows to write SQL statements instead of using `contentResolver.query(...)`. 
 The library add an extension function to ContentResolver named 
-`queryParser(query: String, selectionArgs: Array<String>? = null)`
+`querySql(query: String, selectionArgs: Array<String>? = null)`
 
 ##Getting started
 Step 1. Add the JitPack repository to your build file
@@ -41,7 +41,7 @@ val query = """
     SELECT *
     FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
 """ 
-contentResolver.queryParser(query)
+contentResolver.querySql(query)
 ```
 **instead of**
 ```kotlin
@@ -63,7 +63,7 @@ val query = """
     LIMIT 10
     OFFSET 2
 """
-contentResolver.queryParser(query)
+contentResolver.querySql(query)
 ```
 **instead of**
 ```kotlin

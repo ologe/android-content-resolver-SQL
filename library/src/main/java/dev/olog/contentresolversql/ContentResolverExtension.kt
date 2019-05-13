@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package dev.olog.contentresolversql
 
 import android.annotation.SuppressLint
@@ -61,12 +63,12 @@ fun ContentResolver.queryParser(query: String, selectionArgs: Array<String>? = n
     }
 }
 
-private fun makeProjection(projection: String): Array<String>? {
+private inline fun makeProjection(projection: String): Array<String>? {
     return if (projection == "*") null
     else projection.split(",").toTypedArray()
 }
 
-private fun makeUri(query: String): Uri {
+private inline fun makeUri(query: String): Uri {
     return Uri.parse(query.sanitize())
 }
 
@@ -119,7 +121,7 @@ private fun String.extract(from: String, to: String?): String? {
     }.sanitize()
 }
 
-private fun String.sanitize(): String {
+private inline fun String.sanitize(): String {
     return this.replace("\n", " ")
         .replace("\t", " ")
         .trim()

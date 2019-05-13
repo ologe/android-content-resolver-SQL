@@ -18,6 +18,22 @@ Allows to write SQL statements instead of using `contentResolver.query(...)`.
 The library add an extension function to ContentResolver named 
 `queryParser(query: String, selectionArgs: Array<String>? = null)`
 
+##Getting started
+Step 1. Add the JitPack repository to your build file
+Add it in your root build.gradle at the end of repositories:
+```
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+Step 2. Add the dependency
+```
+implementation 'com.github.ologe:android-content-resolver-SQL:1.0-beta01'
+```
+
 ## Example 1: 
 **Get all songs**
 ```kotlin

@@ -21,7 +21,9 @@ android {
 }
 
 dependencies {
-    implementation project(':library')
+//    implementation project(':library')
+
+    implementation 'com.github.ologe:android-content-resolver-SQL:1.0-beta01'
 
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.2'

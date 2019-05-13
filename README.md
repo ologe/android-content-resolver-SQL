@@ -14,8 +14,8 @@ Content Resolver SQL
 [![minsdk-badge]][github]
 [![paypal-badge]][paypal-url]
 
-Allows to write SQL statements instead of using `ContentResolver.query(...)`. 
-The library add an extension function to Context.ContentResolver named 
+Allows to write SQL statements instead of using `contentResolver.query(...)`. 
+The library add an extension function to ContentResolver named 
 `queryParser(query: String, selectionArgs: Array<String>? = null)`
 
 ## Example 1: 

@@ -5,6 +5,7 @@
 [paypal-badge]:     https://img.shields.io/badge/Donate-Paypal-F3745F.svg
 [minsdk-badge]:     https://img.shields.io/badge/minSdkVersion-16-F3745F.svg
 
+
 <!------------------------------------------------------------------------------------------------------->
 
 Content Resolver SQL
@@ -13,6 +14,8 @@ Content Resolver SQL
 [![platform-badge]][github]
 [![minsdk-badge]][github]
 [![paypal-badge]][paypal-url]
+[![](https://jitpack.io/v/ologe/android-content-resolver-SQL.svg)](https://jitpack.io/#ologe/android-content-resolver-SQL)
+
 
 Allows to write SQL statements instead of using `contentResolver.query(...)`. 
 The library add an extension function to ContentResolver named 
@@ -35,7 +38,7 @@ allprojects {
 ```
 Step 2. Add the dependency
 ```
-implementation 'com.github.ologe:android-content-resolver-SQL:1.0-beta01'
+implementation 'com.github.ologe:android-content-resolver-SQL:1.0'
 ```
 
 ## Example 1: 

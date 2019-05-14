@@ -41,7 +41,7 @@ Step 2. Add the dependency
 implementation 'com.github.ologe:android-content-resolver-SQL:1.0'
 ```
 
-## Example 1: 
+## Example 1
 **Get all songs**
 ```kotlin
 val query = """ 

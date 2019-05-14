@@ -1,5 +1,6 @@
 package dev.olog.contentresolversql.example
 
+import android.provider.MediaStore
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 
@@ -21,4 +22,17 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getTargetContext()
         assertEquals("dev.olog.contentresolversql", appContext.packageName)
     }
+
+    @Test
+    fun assertSimpleQuery(){
+        val appContext = InstrumentationRegistry.getTargetContext()
+
+
+
+        var cursor = appContext.contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            null, null, null, null
+        )
+    }
+
 }

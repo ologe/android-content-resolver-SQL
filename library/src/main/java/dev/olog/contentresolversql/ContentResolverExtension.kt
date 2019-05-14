@@ -38,17 +38,38 @@ import android.util.Log
  *
  * **Don't forget to close the cursor**
  */
+
+internal val keywords = setOf(
+    "select",
+    "from",
+    "where",
+    "group by",
+    "having",
+    "order by",
+    "limit",
+    "offset"
+)
+
 @SuppressLint("Recycle")
-fun ContentResolver.querySql(query: String, selectionArgs: Array<String>? = null): Cursor {
+fun ContentResolver.querySql(
+    query: String,
+    selectionArgs: Array<String>? = null
+): Cursor {
     try {
+        val indexOfKeywords = createKeywords(query)
+        sanitize(indexOfKeywords)
+
         // select
-        val projection = makeProjection(query.extract("SELECT", "FROM")!!)
+        val projection = makeProjection(query)
         // from
-        val uri = makeUri(query.extract("FROM", "WHERE")!!)
+        val uri = makeUri(query, indexOfKeywords)
+
         // where, group by, having
-        val selection = makeSelection(query.extract("WHERE", "ORDER BY"))
+
+        val selection = makeSelection(query)
+
         // sort by, limit, offset
-        val sortOrder = query.extract("ORDER BY", null)
+        val sortOrder = makeSort(query)
 
         return query(
             uri,
@@ -58,33 +79,66 @@ fun ContentResolver.querySql(query: String, selectionArgs: Array<String>? = null
             sortOrder
         )!!
     } catch (ex: Throwable) {
-        Log.e("QueryParser", "check query:\n$query \nargs=$selectionArgs", ex)
+        Log.e("ContentResolverSQL", "Executed query:\n$query \nargs=$selectionArgs")
         throw ex
     }
 }
 
-private inline fun makeProjection(projection: String): Array<String>? {
-    return if (projection == "*") null
-    else projection.split(",").toTypedArray()
+internal fun createKeywords(query: String): List<Pair<String, Int>> {
+    return keywords.map { it to query.indexOf(it, ignoreCase = true) }
+        .filter { it.second > -1 }
 }
 
-private inline fun makeUri(query: String): Uri {
-    return Uri.parse(query.sanitize())
-}
-
-private fun makeSelection(selection: String?): String? {
-    if (selection == null){
-        return null
+internal inline fun sanitize(keywords: List<Pair<String, Int>>) {
+    if (keywords.find { it.first == "select" } == null) {
+        throw IllegalStateException("Missing SELECT clause")
     }
+    if (keywords.find { it.first == "from" } == null) {
+        throw IllegalStateException("Missing FROM clause")
+    }
+
+    if (keywords.find { it.first == "group by" } != null && keywords.find { it.first == "where" } == null) {
+        throw IllegalStateException("WHERE clause is mandatory when using GROUP BY")
+    }
+    if (keywords.find { it.first == "limit" } != null && keywords.find { it.first == "order by" } == null) {
+        throw IllegalStateException("ORDER BY clause is mandatory when using LIMIT")
+    }
+    if (keywords.find { it.first == "offset" } != null && keywords.find { it.first == "limit" } == null) {
+        throw IllegalStateException("LIMIT clause is mandatory when using OFFSET")
+    }
+    if (keywords.find { it.first == "having" } != null && keywords.find { it.first == "group by" } == null) {
+        throw IllegalStateException("GROUP BY clause is mandatory when using HAVING")
+    }
+}
+
+internal inline fun makeProjection(query: String): Array<String>? {
+    val projection = query.extract("SELECT", "FROM")!!
+    return if (projection == "*") null
+    else projection
+        .split(",")
+        .map { it.trim() }
+        .toTypedArray()
+}
+
+internal inline fun makeUri(query: String, indexOfKeywords: List<Pair<String, Int>>): Uri {
+    val indexOfFrom = indexOfKeywords.first { it.first == "from" }.second
+    val keywordAfterFrom = indexOfKeywords.find { it.second > indexOfFrom }?.first
+    val tableName = query.extract("FROM", keywordAfterFrom)!!
+    return Uri.parse(tableName.sanitize())
+}
+
+internal fun makeSelection(query: String): String? {
+    val selection = query.extract("WHERE", "ORDER BY") ?: return null
 
     val indexOfHaving = selection.indexOf("HAVING", ignoreCase = true)
     val indexOfGroupBy = selection.indexOf("GROUP BY", ignoreCase = true)
-    // no group by, return itself
-    if (indexOfGroupBy == -1){
+
+    // no group by, return only where clause
+    if (indexOfGroupBy == -1) {
         return selection
     }
-    if (indexOfHaving > -1){
-        // put '(' after having by
+    if (indexOfHaving > -1) {
+        // WHERE .. ) GROUP BY .. HAVING ( ..
         return buildString {
             append(selection.substring(0, indexOfGroupBy))
             append(")")
@@ -93,6 +147,7 @@ private fun makeSelection(selection: String?): String? {
             append(selection.substring(indexOfHaving + 6))
         }
     }
+    // WHERE .. ) GROUP BY ( ..
     return buildString {
         append(selection.substring(0, indexOfGroupBy))
         append(") GROUP BY (")
@@ -100,9 +155,13 @@ private fun makeSelection(selection: String?): String? {
     }
 }
 
-private fun String.extract(from: String, to: String?): String? {
+internal fun makeSort(query: String): String? {
+    return query.extract("ORDER BY", null)
+}
+
+internal fun String.extract(from: String, to: String?): String? {
     val indexOfFrom = this.indexOf(from, ignoreCase = true)
-    if (indexOfFrom == -1){
+    if (indexOfFrom == -1) {
         // substring not found
         return null
     }
@@ -121,7 +180,7 @@ private fun String.extract(from: String, to: String?): String? {
     }.sanitize()
 }
 
-private inline fun String.sanitize(): String {
+internal inline fun String.sanitize(): String {
     return this.replace("\n", " ")
         .replace("\t", " ")
         .trim()

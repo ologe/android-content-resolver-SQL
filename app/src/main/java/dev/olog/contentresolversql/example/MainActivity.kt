@@ -1,6 +1,5 @@
 package dev.olog.contentresolversql.example
 
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AlbumColumns.ARTIST
@@ -14,6 +13,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        var start = System.currentTimeMillis()
         var query = """
             SELECT *
             FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
@@ -21,6 +21,9 @@ class MainActivity : AppCompatActivity() {
 
         var cursor = contentResolver.querySql(query)
         cursor.close()
+
+        val time1 = System.currentTimeMillis() - start
+        start = System.currentTimeMillis()
 
         query = """
             SELECT distinct $ARTIST_ID, $ARTIST, count(*) as songs, count(distinct $ALBUM_ID) as albums
@@ -33,7 +36,6 @@ class MainActivity : AppCompatActivity() {
             OFFSET 2
         """.trimIndent()
 
-        contentResolver.query(Uri.parse(""), null, null, null, null)
         cursor = contentResolver.querySql(query)
         val result = mutableListOf<Artist>()
         while (cursor.moveToNext()){
@@ -45,6 +47,8 @@ class MainActivity : AppCompatActivity() {
             )
             result.add(item)
         }
+
+        val time2 = System.currentTimeMillis() - start
 
         cursor.close()
     }

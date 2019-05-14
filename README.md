@@ -18,6 +18,10 @@ Allows to write SQL statements instead of using `contentResolver.query(...)`.
 The library add an extension function to ContentResolver named 
 `querySql(query: String, selectionArgs: Array<String>? = null)`
 
+###Limitations
+When using `LIMIT` keyword, you need to specify also `ORDER BY`.<p>
+When using `GROUP BY` keyword, you need to specify also  `WHERE`.
+
 ##Getting started
 Step 1. Add the JitPack repository to your build file
 Add it in your root build.gradle at the end of repositories:

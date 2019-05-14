@@ -47,27 +47,25 @@ implementation 'com.github.ologe:android-content-resolver-SQL:1.0'
 ```kotlin
 val query = """ 
     SELECT *
-    FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
+    FROM ${Media.EXTERNAL_CONTENT_URI}
 """ 
 contentResolver.querySql(query)
 ```
 **instead of**
 ```kotlin
-contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
+contentResolver.query(Media.EXTERNAL_CONTENT_URI, null, null, null, null)
 ```
 ## Example 2
 
 **Get first 10 artists offsetted by 2, that have at least 5 tracks and 2 albums, excluding the podcast, ordered by artist desc**
 ```kotlin
 val query = """
-    SELECT distinct ${MediaStore.Audio.Media.ARTIST_ID}, ${MediaStore.Audio.Media.ARTIST}, 
-        count(*) as songs, 
-        count(distinct ${MediaStore.Audio.Media.ALBUM_ID}) as albums
-    FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
-    WHERE ${MediaStore.Audio.Media.IS_PODCAST} = 0
-    GROUP BY ${MediaStore.Audio.Media.ARTIST_ID}
+    SELECT distinct $ARTIST_ID, $ARTIST, count(*) as songs, count(distinct $ALBUM_ID) as albums
+    FROM ${Media.EXTERNAL_CONTENT_URI}
+    WHERE $IS_PODCAST = 0
+    GROUP BY $ARTIST_ID AND $ARTIST
     HAVING songs >= 5 AND albums >= 2
-    ORDER BY ${MediaStore.Audio.Media.ARTIST_KEY} DESC
+    ORDER BY $ARTIST_KEY DESC
     LIMIT 10
     OFFSET 2
 """
@@ -76,14 +74,14 @@ contentResolver.querySql(query)
 **instead of**
 ```kotlin
 contentResolver.query(
-    uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+    uri = Media.EXTERNAL_CONTENT_URI,
     projection = arrayOf(
         "distinct $ARTIST_ID", 
         ARTIST, 
         "count(*) as songs", 
         "count(distinct $ALBUM_ID) as albums"
     ),
-    selection = "$IS_PODCAST = 0 ) GROUP BY $ARTIST_ID HAVING (songs >= 5 AND albums >= 2",
+    selection = "$IS_PODCAST = 0 ) GROUP BY $ARTIST_ID AND $ARTIST AND HAVING (songs >= 5 AND albums >= 2",
     selectionArgs = null,
     sortOrder = "$ARTIST_KEY DESC LIMIT 20 OFFSET 2"
 )

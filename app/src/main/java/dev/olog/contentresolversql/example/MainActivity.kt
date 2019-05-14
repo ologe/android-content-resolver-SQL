@@ -13,17 +13,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var start = System.currentTimeMillis()
+        example()
+    }
+
+
+    private fun example(){
         var query = """
             SELECT *
             FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
         """.trimIndent()
 
-        var cursor = contentResolver.querySql(query)
-        cursor.close()
-
-        val time1 = System.currentTimeMillis() - start
-        start = System.currentTimeMillis()
+        contentResolver.querySql(query).close()
 
         query = """
             SELECT distinct $ARTIST_ID, $ARTIST, count(*) as songs, count(distinct $ALBUM_ID) as albums
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             OFFSET 2
         """.trimIndent()
 
-        cursor = contentResolver.querySql(query)
+        val cursor = contentResolver.querySql(query)
         val result = mutableListOf<Artist>()
         while (cursor.moveToNext()){
             val item = Artist(
@@ -48,10 +48,9 @@ class MainActivity : AppCompatActivity() {
             result.add(item)
         }
 
-        val time2 = System.currentTimeMillis() - start
-
         cursor.close()
     }
+
 }
 
 data class Artist(

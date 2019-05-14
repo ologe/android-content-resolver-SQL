@@ -63,7 +63,7 @@ val query = """
     SELECT distinct $ARTIST_ID, $ARTIST, count(*) as songs, count(distinct $ALBUM_ID) as albums
     FROM ${Media.EXTERNAL_CONTENT_URI}
     WHERE $IS_PODCAST = 0
-    GROUP BY $ARTIST_ID AND $ARTIST
+    GROUP BY $ARTIST_ID
     HAVING songs >= 5 AND albums >= 2
     ORDER BY $ARTIST_KEY DESC
     LIMIT 10
@@ -81,7 +81,7 @@ contentResolver.query(
         "count(*) as songs", 
         "count(distinct $ALBUM_ID) as albums"
     ),
-    selection = "$IS_PODCAST = 0 ) GROUP BY $ARTIST_ID AND $ARTIST AND HAVING (songs >= 5 AND albums >= 2",
+    selection = "$IS_PODCAST = 0 ) GROUP BY $ARTIST_ID HAVING (songs >= 5 AND albums >= 2",
     selectionArgs = null,
     sortOrder = "$ARTIST_KEY DESC LIMIT 20 OFFSET 2"
 )

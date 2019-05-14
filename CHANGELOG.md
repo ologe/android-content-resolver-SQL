@@ -1,5 +1,9 @@
 # Release notes
 
+## 1.1.0
+- Fixed multiple `GROUP BY` not working
+- Improved tests
+
 ## 1.0.0
 - Fixed crashed
 - Now is **mandatory** to specify `ORDER BY` when using `LIMIT`

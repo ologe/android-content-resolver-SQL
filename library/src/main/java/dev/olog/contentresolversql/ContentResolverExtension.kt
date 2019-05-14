@@ -60,16 +60,16 @@ fun ContentResolver.querySql(
         sanitize(indexOfKeywords)
 
         // select
-        val projection = makeProjection(query)
+        val projection = makeProjection(query, indexOfKeywords)
         // from
         val uri = makeUri(query, indexOfKeywords)
 
         // where, group by, having
 
-        val selection = makeSelection(query)
+        val selection = makeSelection(query, indexOfKeywords)
 
         // sort by, limit, offset
-        val sortOrder = makeSort(query)
+        val sortOrder = makeSort(query, indexOfKeywords)
 
         return query(
             uri,
@@ -111,8 +111,10 @@ internal inline fun sanitize(keywords: List<Pair<String, Int>>) {
     }
 }
 
-internal inline fun makeProjection(query: String): Array<String>? {
-    val projection = query.extract("SELECT", "FROM")!!
+internal inline fun makeProjection(query: String, indexOfKeywords: List<Pair<String, Int>>): Array<String>? {
+    val indexOfSelect = indexOfKeywords.first { it.first == "select" }.second + 6
+    val indexOfFrom = indexOfKeywords.first { it.first == "from" }.second
+    val projection = query.substring(indexOfSelect, indexOfFrom).trim()
     return if (projection == "*") null
     else projection
         .split(",")
@@ -122,66 +124,73 @@ internal inline fun makeProjection(query: String): Array<String>? {
 
 internal inline fun makeUri(query: String, indexOfKeywords: List<Pair<String, Int>>): Uri {
     val indexOfFrom = indexOfKeywords.first { it.first == "from" }.second
-    val keywordAfterFrom = indexOfKeywords.find { it.second > indexOfFrom }?.first
-    val tableName = query.extract("FROM", keywordAfterFrom)!!
-    return Uri.parse(tableName.sanitize())
-}
-
-internal fun makeSelection(query: String): String? {
-    val selection = query.extract("WHERE", "ORDER BY") ?: return null
-
-    val indexOfHaving = selection.indexOf("HAVING", ignoreCase = true)
-    val indexOfGroupBy = selection.indexOf("GROUP BY", ignoreCase = true)
-
-    // no group by, return only where clause
-    if (indexOfGroupBy == -1) {
-        return selection
-    }
-    if (indexOfHaving > -1) {
-        // WHERE .. ) GROUP BY .. HAVING ( ..
-        return buildString {
-            append(selection.substring(0, indexOfGroupBy))
-            append(")")
-            append(selection.substring(indexOfGroupBy, indexOfHaving))
-            append(" HAVING (")
-            append(selection.substring(indexOfHaving + 6))
-        }
-    }
-    // WHERE .. ) GROUP BY ( ..
-    return buildString {
-        append(selection.substring(0, indexOfGroupBy))
-        append(") GROUP BY (")
-        append(selection.substring(indexOfGroupBy + 8))
-    }
-}
-
-internal fun makeSort(query: String): String? {
-    return query.extract("ORDER BY", null)
-}
-
-internal fun String.extract(from: String, to: String?): String? {
-    val indexOfFrom = this.indexOf(from, ignoreCase = true)
-    if (indexOfFrom == -1) {
-        // substring not found
-        return null
-    }
-
-    return if (to != null && this.indexOf(to, ignoreCase = true) > -1) {
-        // from - to
-        this.substring(
-            indexOfFrom + from.length,
-            this.indexOf(to, ignoreCase = true)
-        )
+    val keywordAfterFrom = indexOfKeywords.find { it.second > indexOfFrom }
+    if (keywordAfterFrom == null) {
+        return Uri.parse(query.substring(indexOfFrom + 4).trim())
     } else {
-        // from - end of string
-        this.substring(
-            indexOfFrom + from.length
-        )
-    }.sanitize()
+        return Uri.parse(query.substring(indexOfFrom + 4, keywordAfterFrom.second).trim())
+    }
 }
 
-internal inline fun String.sanitize(): String {
-    return this.replace("\n", " ")
-        .replace("\t", " ")
-        .trim()
+internal fun makeSelection(query: String, keywordsIndex: List<Pair<String, Int>>): String? {
+    val whereClauseKeyword = keywordsIndex.find { it.first == "where" }
+        ?: return null // no where clause
+
+    var nextKeyword = keywordsIndex.find { it.second > whereClauseKeyword.second }
+        ?: return query.substring(whereClauseKeyword.second + 5).trim() // where is the last clause
+
+    if (nextKeyword.first == "order by") {
+        // where clause only
+        return query.substring(
+            whereClauseKeyword.second + 5, // after where
+            nextKeyword.second      // before order by
+        ).trim()
+    }
+    if (nextKeyword.second == -1) {
+        // where clause only
+
+    }
+    // next keyword is group by
+    val groupByKeyword = nextKeyword
+    val whereCondition = query.substring(whereClauseKeyword.second + 5, groupByKeyword.second).trim()
+    nextKeyword = keywordsIndex.find { it.second > groupByKeyword.second } ?: Pair("placeholder", -1)
+    if (nextKeyword.first == "order by" || nextKeyword.second == -1) {
+        // group by only, no having clause
+        val groupByString = if (nextKeyword.second == -1) query.substring(groupByKeyword.second + 8)
+        else query.substring(groupByKeyword.second + 8, nextKeyword.second)
+
+        val groupBy = groupByString.split(",").map { it.trim() }.toMutableList()
+        return buildString {
+            append(whereCondition)
+            append(") GROUP BY ")
+            // add a closing parenthesis after last condition of groyp by
+            groupBy[groupBy.lastIndex] = "(${groupBy[groupBy.lastIndex]}"
+            append(groupBy.joinToString())
+        }.trim()
+    }
+    // next keyword is having
+    val havingKeyword = nextKeyword
+    nextKeyword = keywordsIndex.find { it.second > havingKeyword.second } ?: Pair("placeholder", -1)
+
+    val groupBy = query.substring(groupByKeyword.second + 8, havingKeyword.second)
+        .split(",")
+        .map { it.trim() }
+
+    val havingConditions = if (nextKeyword.second == -1) query.substring(havingKeyword.second + 6)
+    else query.substring(havingKeyword.second + 6, nextKeyword.second)
+
+
+    return buildString {
+        append(whereCondition)
+        append(") GROUP BY ")
+        append(groupBy.joinToString())
+        append(" HAVING (")
+        val a = havingConditions.split("AND", ignoreCase = true).map { it.trim() }.joinToString(separator = " AND ")
+        append(havingConditions.split("AND", ignoreCase = true).map { it.trim() }.joinToString(separator = " AND "))
+    }.trim()
+}
+
+internal fun makeSort(query: String, indexOfKeywords: List<Pair<String, Int>>): String? {
+    val indexOfSort = indexOfKeywords.find { it.first == "order by" } ?: return null
+    return query.substring(indexOfSort.second + 8).trim()
 }

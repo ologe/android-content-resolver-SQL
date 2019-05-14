@@ -22,8 +22,9 @@ The library add an extension function to ContentResolver named
 `querySql(query: String, selectionArgs: Array<String>? = null)`
 
 ### Limitations
-When using `LIMIT` keyword, you need to specify also `ORDER BY`.<p>
-When using `GROUP BY` keyword, you need to specify also  `WHERE`.
+- When using `LIMIT` keyword, you need to specify also `ORDER BY`.<p>
+- When using `GROUP BY` keyword, you need to specify also  `WHERE`.<p>
+- `JOIN` are not supported by android content provider itself.
 
 ## Getting started
 Step 1. Add the JitPack repository to your build file

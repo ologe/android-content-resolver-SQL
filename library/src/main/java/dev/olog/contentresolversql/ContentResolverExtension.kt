@@ -50,6 +50,15 @@ internal val keywords = setOf(
     "offset"
 )
 
+class Query(
+    uri: Uri,
+    projection: Array<String>?,
+    selection: String?,
+    selectionArgs: Array<String>?,
+    sortOrder: String?
+
+)
+
 @SuppressLint("Recycle")
 fun ContentResolver.querySql(
     query: String,
@@ -78,6 +87,38 @@ fun ContentResolver.querySql(
             selectionArgs,
             sortOrder
         )!!
+    } catch (ex: Throwable) {
+        Log.e("ContentResolverSQL", "Executed query:\n$query \nargs=$selectionArgs")
+        throw ex
+    }
+}
+
+fun ContentResolver.querySql2(
+    query: String,
+    selectionArgs: Array<String>? = null
+): Query {
+    try {
+        val indexOfKeywords = createKeywords(query)
+        sanitize(indexOfKeywords)
+
+        // select
+        val projection = makeProjection(query, indexOfKeywords)
+        // from
+        val uri = makeUri(query, indexOfKeywords)
+
+        // where, group by, having
+        val selection = makeSelection(query, indexOfKeywords)
+
+        // sort by, limit, offset
+        val sortOrder = makeSort(query, indexOfKeywords)
+
+        return Query(
+            uri,
+            projection,
+            selection,
+            selectionArgs,
+            sortOrder
+        )
     } catch (ex: Throwable) {
         Log.e("ContentResolverSQL", "Executed query:\n$query \nargs=$selectionArgs")
         throw ex

@@ -1,5 +1,9 @@
 # Release notes
 
+## 1.2.0
+- Added a second method `contentResolver.querySql2(..)` that returns the `contentResolver.query(params)` calculated params
+instead of cursor  
+
 ## 1.1.0
 - Fixed multiple `GROUP BY` not working
 - Improved tests

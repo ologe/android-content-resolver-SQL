@@ -51,11 +51,11 @@ internal val keywords = setOf(
 )
 
 class Query(
-    uri: Uri,
-    projection: Array<String>?,
-    selection: String?,
-    selectionArgs: Array<String>?,
-    sortOrder: String?
+    val uri: Uri,
+    val projection: Array<String>?,
+    val selection: String?,
+    val selectionArgs: Array<String>?,
+    val sortOrder: String?
 
 )
 

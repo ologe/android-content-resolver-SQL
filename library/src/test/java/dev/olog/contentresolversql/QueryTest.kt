@@ -9,7 +9,7 @@ import org.junit.Test
  *
  * @see [Testing documentation](http://d.android.com/tools/testing)
  */
-class ExampleUnitTest {
+class QueryTest {
 
     @Test
     fun star_projection() {

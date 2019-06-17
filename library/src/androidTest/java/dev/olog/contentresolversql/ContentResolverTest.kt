@@ -13,20 +13,20 @@ import org.junit.runner.RunWith
  * @see [Testing documentation](http://d.android.com/tools/testing)
  */
 @RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
+class ContentResolverTest {
 
     @Test(expected = IllegalStateException::class)
     fun missing_select_throws(){
         val query = "SEL * FROM $EXTERNAL_CONTENT_URI"
         val appContext = InstrumentationRegistry.getTargetContext()
-        appContext.contentResolver.querySql(query, null)
+        appContext.contentResolver.querySql(query, null).close()
     }
 
     @Test(expected = IllegalStateException::class)
     fun missing_from_throws(){
         val query = "SELECT * FRO $EXTERNAL_CONTENT_URI"
         val appContext = InstrumentationRegistry.getTargetContext()
-        appContext.contentResolver.querySql(query, null)
+        appContext.contentResolver.querySql(query, null).close()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -37,7 +37,7 @@ class ExampleInstrumentedTest {
             GROUP BY $ARTIST_ID
         """
         val appContext = InstrumentationRegistry.getTargetContext()
-        appContext.contentResolver.querySql(query, null)
+        appContext.contentResolver.querySql(query, null).close()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -48,7 +48,7 @@ class ExampleInstrumentedTest {
             HAVING songs > 10
         """
         val appContext = InstrumentationRegistry.getTargetContext()
-        appContext.contentResolver.querySql(query, null)
+        appContext.contentResolver.querySql(query, null).close()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -59,7 +59,7 @@ class ExampleInstrumentedTest {
             LIMIT 1
         """
         val appContext = InstrumentationRegistry.getTargetContext()
-        appContext.contentResolver.querySql(query, null)
+        appContext.contentResolver.querySql(query, null).close()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -70,7 +70,7 @@ class ExampleInstrumentedTest {
             OFFSET 10
         """
         val appContext = InstrumentationRegistry.getTargetContext()
-        appContext.contentResolver.querySql(query, null)
+        appContext.contentResolver.querySql(query, null).close()
     }
 
 }

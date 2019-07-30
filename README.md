@@ -39,7 +39,7 @@ allprojects {
 ```
 Step 2. Add the dependency
 ```
-implementation 'com.github.ologe:android-content-resolver-SQL:1.1'
+implementation 'com.github.ologe:android-content-resolver-SQL:1.2.1'
 ```
 
 ## Example 1

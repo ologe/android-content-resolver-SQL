@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "SpellCheckingInspection")
 
 package dev.olog.contentresolversql
 
@@ -50,6 +50,7 @@ internal val keywords = setOf(
     "offset"
 )
 
+@Suppress("unused")
 class Query(
     val uri: Uri,
     val projection: Array<String>?,
@@ -93,6 +94,7 @@ fun ContentResolver.querySql(
     }
 }
 
+@Suppress("unused")
 fun ContentResolver.querySql2(
     query: String,
     selectionArgs: Array<String>? = null
@@ -168,10 +170,10 @@ internal inline fun makeProjection(query: String, indexOfKeywords: List<Pair<Str
 internal inline fun makeUri(query: String, indexOfKeywords: List<Pair<String, Int>>): Uri {
     val indexOfFrom = indexOfKeywords.first { it.first == "from" }.second
     val keywordAfterFrom = indexOfKeywords.find { it.second > indexOfFrom }
-    if (keywordAfterFrom == null) {
-        return Uri.parse(query.substring(indexOfFrom + 4).trim())
+    return if (keywordAfterFrom == null) {
+        Uri.parse(query.substring(indexOfFrom + 4).trim())
     } else {
-        return Uri.parse(query.substring(indexOfFrom + 4, keywordAfterFrom.second).trim())
+        Uri.parse(query.substring(indexOfFrom + 4, keywordAfterFrom.second).trim())
     }
 }
 
@@ -188,10 +190,6 @@ internal fun makeSelection(query: String, keywordsIndex: List<Pair<String, Int>>
             whereClauseKeyword.second + 5, // after where
             nextKeyword.second      // before order by
         ).trim()
-    }
-    if (nextKeyword.second == -1) {
-        // where clause only
-
     }
     // next keyword is group by
     val groupByKeyword = nextKeyword
@@ -228,8 +226,7 @@ internal fun makeSelection(query: String, keywordsIndex: List<Pair<String, Int>>
         append(") GROUP BY ")
         append(groupBy.joinToString())
         append(" HAVING (")
-        val a = havingConditions.split("AND", ignoreCase = true).map { it.trim() }.joinToString(separator = " AND ")
-        append(havingConditions.split("AND", ignoreCase = true).map { it.trim() }.joinToString(separator = " AND "))
+        append(havingConditions.split("AND", ignoreCase = true).joinToString(separator = " AND ") { it.trim() })
     }.trim()
 }
 

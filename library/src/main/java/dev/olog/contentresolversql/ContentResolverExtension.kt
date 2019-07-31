@@ -125,9 +125,11 @@ fun ContentResolver.querySql2(
     }
 }
 
-internal fun createKeywords(query: String): List<Pair<String, Int>> {
-    return keywords.map { it to query.indexOf(it, ignoreCase = true) }
+internal inline fun createKeywords(query: String): List<Pair<String, Int>> {
+    return keywords.asSequence()
+        .map { it to query.indexOf(it, ignoreCase = true) }
         .filter { it.second > -1 }
+        .toList()
 }
 
 internal inline fun sanitize(keywords: List<Pair<String, Int>>) {

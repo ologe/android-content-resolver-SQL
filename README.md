@@ -24,12 +24,13 @@ The library add an extension function to ContentResolver named
 ### Limitations
 - When using `LIMIT` keyword, you need to specify also `ORDER BY`.<p>
 - When using `GROUP BY` keyword, you need to specify also  `WHERE`.<p>
+- You can use `WHERE 1 GROUP BY` if you haven’t a `WHERE` condition
 - `JOIN` are not supported by android content provider itself.
 
 ## Getting started
 Step 1. Add the JitPack repository to your build file
 Add it in your root build.gradle at the end of repositories:
-```
+```groovy
 allprojects {
     repositories {
         ...
@@ -38,8 +39,8 @@ allprojects {
 }
 ```
 Step 2. Add the dependency
-```
-implementation 'com.github.ologe:android-content-resolver-SQL:1.2.1'
+```groovy
+implementation 'com.github.ologe:android-content-resolver-SQL:1.2.2'
 ```
 
 ## Example 1

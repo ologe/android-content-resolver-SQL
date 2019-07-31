@@ -1,5 +1,13 @@
 # Release notes
 
+## 1.2.2
+- removed unused code
+- supressed warnings
+- internal cleaning
+
+# 1.2.1
+- hotfix: made Query params public
+
 ## 1.2.0
 - Added a second method `contentResolver.querySql2(..)` that returns the `contentResolver.query(params)` calculated params
 instead of cursor  

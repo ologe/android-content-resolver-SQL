@@ -1,10 +1,10 @@
 package dev.olog.contentresolversql.example
 
+import android.Manifest
 import android.os.Bundle
 import android.provider.MediaStore
-import android.provider.MediaStore.Audio.AlbumColumns.ARTIST
-import android.provider.MediaStore.Audio.AudioColumns.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import dev.olog.contentresolversql.querySql
 
 class MainActivity : AppCompatActivity() {
@@ -13,49 +13,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+            0
+        )
+
         example()
     }
 
 
-    private fun example(){
-        var query = """
+    private fun example() {
+        val query = """
             SELECT *
             FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
+            WHERE id = ?
         """.trimIndent()
 
-        contentResolver.querySql(query).close()
-
-        query = """
-            SELECT distinct $ARTIST_ID, $ARTIST, count(*) as songs, count(distinct $ALBUM_ID) as albums
-            FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}
-            WHERE $IS_PODCAST = 0
-            GROUP BY $ARTIST_ID
-            HAVING songs >= 2 AND albums >= 2
-            ORDER BY $ARTIST_KEY ASC
-            LIMIT 20
-            OFFSET 2
-        """.trimIndent()
-
-        val cursor = contentResolver.querySql(query)
-        val result = mutableListOf<Artist>()
-        while (cursor.moveToNext()){
-            val item = Artist(
-                cursor.getLong(cursor.getColumnIndex(ARTIST_ID)),
-                cursor.getString(cursor.getColumnIndex(ARTIST)),
-                cursor.getInt(cursor.getColumnIndex("songs")),
-                cursor.getInt(cursor.getColumnIndex("albums"))
-            )
-            result.add(item)
-        }
-
-        cursor.close()
+        contentResolver.querySql(query, arrayOf("1")).close()
     }
 
 }
-
-data class Artist(
-    val id: Long,
-    val name: String,
-    val songs: Int,
-    val albums: Int
-)

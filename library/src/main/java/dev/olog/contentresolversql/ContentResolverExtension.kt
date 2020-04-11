@@ -89,7 +89,7 @@ fun ContentResolver.querySql(
             sortOrder
         )!!
     } catch (ex: Throwable) {
-        Log.e("ContentResolverSQL", "Executed query:\n$query \nargs=$selectionArgs")
+        Log.e("ContentResolverSQL", "Executed query:\n$query \nargs=${selectionArgs?.toList()}")
         throw ex
     }
 }
